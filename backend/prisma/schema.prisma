@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  GP
+  SPECIALIST
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String
+  firstName          String
+  lastName           String
+  role               UserRole
+  specialization     String?
+  licenseNumber      String
+  phoneNumber        String?
+  hospitalAffiliation String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  appointmentsAsGP        Appointment[] @relation("GPAppointments")
+  appointmentsAsSpecialist Appointment[] @relation("SpecialistAppointments")
+  patients                Patient[]
+  resources               Resource[]
+  discussions            Discussion[]
+  discussionComments     DiscussionComment[]
+
+  @@map("users")
+}
+
+model Patient {
+  id               String   @id @default(uuid())
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  gender           String
+  phoneNumber      String?
+  address          String?
+  emergencyContact String?
+  emergencyPhone   String?
+  createdBy        String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  creator      User          @relation(fields: [createdBy], references: [id])
+  appointments Appointment[]
+
+  @@map("patients")
+}
+
+model Appointment {
+  id            String            @id @default(uuid())
+  patientId     String
+  gpId          String
+  specialistId  String
+  date          DateTime
+  status        AppointmentStatus
+  reason        String
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  // Relations
+  patient        Patient  @relation(fields: [patientId], references: [id])
+  gp             User     @relation("GPAppointments", fields: [gpId], references: [id])
+  specialist     User     @relation("SpecialistAppointments", fields: [specialistId], references: [id])
+
+  @@map("appointments")
+}
+
+model Resource {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  fileUrl     String
+  category    String
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  uploader    User     @relation(fields: [uploadedBy], references: [id])
+
+  @@map("resources")
+}
+
+model Discussion {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  createdBy String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  creator   User                @relation(fields: [createdBy], references: [id])
+  comments  DiscussionComment[]
+
+  @@map("discussions")
+}
+
+model DiscussionComment {
+  id           String   @id @default(uuid())
+  discussionId String
+  content      String
+  createdBy    String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  creator    User       @relation(fields: [createdBy], references: [id])
+
+  @@map("discussion_comments")
+}
