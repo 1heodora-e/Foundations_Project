@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Post,
-  Res,
   HttpCode,
   Param,
   Get,
@@ -16,7 +15,6 @@ import { LoginDto } from './Dto/userLoginDto';
 import { UpdateUserDto } from './Dto/userUpdateDto';
 import { CreateUserDto } from './Dto/userRegisterDto';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -42,15 +40,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({ status: 201, description: 'User registered successfully' })
   @ApiResponse({ status: 409, description: 'Email already in use' })
-  async register(
-    @Body(ValidationPipe) createUserDto: CreateUserDto,
-    @Res() res: Response,
-  ) {
-    const { user, accessToken } =
-      await this.authService.register(createUserDto);
-    res.setHeader('Authorization', `Bearer ${accessToken}`);
-
-    return res.json({ user });
+  async register(@Body(ValidationPipe) createUserDto: CreateUserDto) {
+    return this.authService.register(createUserDto);
   }
 
   @Post('login')
@@ -58,16 +49,8 @@ export class AuthController {
   @ApiOperation({ summary: 'Log in an existing user' })
   @ApiResponse({ status: 200, description: 'User logged in successfully' })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  async login(@Body(ValidationPipe) loginDto: LoginDto, @Res() res: Response) {
-    const { user, accessToken, refreshToken } =
-      await this.authService.login(loginDto);
-
-    // Set tokens in headers
-    res.setHeader('Authorization', `Bearer ${accessToken}`);
-    res.setHeader('Refresh-Token', refreshToken);
-
-    // Return user details
-    return res.json({ user });
+  async login(@Body(ValidationPipe) loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Post('refresh-token')
