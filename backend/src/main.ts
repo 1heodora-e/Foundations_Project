@@ -8,6 +8,7 @@ import {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Ubuzima Connect API')
@@ -18,17 +19,7 @@ async function bootstrap() {
     `,
     )
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'Authorization',
-        description: 'Enter your JWT token',
-        in: 'header',
-      },
-      'JWT-auth', // This is a reference ID used to specify which security mechanism to use
-    )
+    .addBearerAuth()
     .addServer('http://localhost:3000', 'Local Development')
     .addServer('https://api.ubuzimaconnect.rw', 'Production') // Add your actual production URL
     .setContact(
