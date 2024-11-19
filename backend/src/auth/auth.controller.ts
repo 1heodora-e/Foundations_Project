@@ -8,6 +8,7 @@ import {
   UseGuards,
   HttpStatus,
   Patch,
+  Req,
   Delete,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -27,6 +28,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { RolesGuard } from './role.guard';
 import { Roles } from './role-decorator';
 import { UUID } from 'crypto';
+import { JwtAuthGuard } from './jwt.guard';
 
 @ApiTags('users')
 @Controller('users')
@@ -102,13 +104,20 @@ export class AuthController {
     return this.authService.refreshToken(refreshTokenDto);
   }
 
-  @Get('me/:id')
+  @Get('me')
   @HttpCode(200)
-  @ApiResponse({ status: 400, description: 'User not found' })
-  @ApiResponse({ status: 20, description: 'Ok' })
-  @ApiOperation({ summary: 'user profile' })
-  async getMe(@Param('id') id: string) {
-    return await this.authService.getMe(id);
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get logged-in user profile' })
+  @ApiResponse({
+    status: 200,
+    description: 'User profile fetched successfully',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Req() req: any) {
+    const userId = req.user.id;
+    return await this.authService.getMe(userId);
   }
 
   @ApiBearerAuth()
