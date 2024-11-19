@@ -3,13 +3,14 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from './Dto/userRegisterDto';
+import { LoginDto } from './Dto/userLoginDto';
 import * as bcrypt from 'bcrypt';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -18,23 +19,9 @@ export class AuthService {
     public readonly jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
+  async register(createUserDto: CreateUserDto) {
     const { email, password, firstName, lastName, role, licenseNumber } =
-      registerDto;
-
-    // Check for missing fields
-    if (
-      !email ||
-      !password ||
-      !firstName ||
-      !lastName ||
-      !role ||
-      !licenseNumber
-    ) {
-      throw new BadRequestException(
-        'All fields (email, password, firstName, lastName, role, licenseNumber) are required.',
-      );
-    }
+      createUserDto;
 
     try {
       // Check if user already exists
@@ -48,7 +35,7 @@ export class AuthService {
         );
       }
 
-      // Hash user password
+      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
       // Create the user
@@ -60,17 +47,22 @@ export class AuthService {
           lastName,
           role,
           licenseNumber,
-        } as Prisma.UserCreateInput,
+        },
       });
 
+      // Generate tokens
       const tokens = await this.generateTokens(user.id, user.role);
+
+      // Exclude the password from the response
+      const { password: _, ...userWithoutPassword } = user;
 
       return {
         message: 'Registration successful!',
-        user,
+        user: userWithoutPassword,
         ...tokens,
       };
     } catch (error) {
+      // Handle validation errors
       if (error instanceof Prisma.PrismaClientValidationError) {
         throw new BadRequestException(`Validation error: ${error.message}`);
       } else {
@@ -81,9 +73,62 @@ export class AuthService {
     }
   }
 
+  async findAllUsers(): Promise<Partial<User>[]> {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        specialization: true,
+        licenseNumber: true,
+        phoneNumber: true,
+        hospitalAffiliation: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+  async updateUser(
+    id: string,
+    updateUserDto: Prisma.UserUpdateInput,
+  ): Promise<Partial<User>> {
+    // Check if user exists
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Update the user
+    const updatedUser = await this.prisma.user.update({
+      where: { id },
+      data: updateUserDto,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        specialization: true,
+        licenseNumber: true,
+        phoneNumber: true,
+        hospitalAffiliation: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return updatedUser;
+  }
+
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
+    // Find user by email
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -92,17 +137,95 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.role);
+
+    // Exclude password from response
     const { password: _, ...userWithoutPassword } = user;
-    return { user: userWithoutPassword, ...tokens };
+
+    return {
+      user: userWithoutPassword,
+      ...tokens,
+    };
+  }
+  async refreshToken(refreshToken: object) {
+    const token = refreshToken['refresh_token'];
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: process.env.REFRESH_SECRET,
+      });
+      // Fetch the user from the database
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.id },
+      });
+
+      if (!user) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      // Generate new tokens
+      const tokens = await this.generateTokens(user.id, user.role);
+      return tokens;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
   }
 
-  private async generateTokens(userId: string, role: string) {
-    const payload = { sub: userId, role };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '15m',
+  // generate both refresh and access token
+  async generateTokens(userId: string, role: string) {
+    const accessToken = this.jwtService.sign(
+      { id: userId, role },
+      { secret: process.env.JWT_SECRET, expiresIn: '1h' },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      { id: userId },
+      { secret: process.env.REFRESH_SECRET, expiresIn: '7d' },
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  // Delete User (Admin only)
+  async deleteUser(userId: string): Promise<{ message: string }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
     });
 
-    return { accessToken };
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return { message: `User with ID ${userId} has been deleted` };
+  }
+
+  // User Profile
+  async getMe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        phoneNumber: true,
+        hospitalAffiliation: true,
+        specialization: true,
+        licenseNumber: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('User not found'); // You can customize this error
+    }
+
+    return user;
   }
 }
