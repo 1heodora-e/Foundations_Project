@@ -19,58 +19,39 @@ export class AuthService {
     public readonly jwtService: JwtService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const { email, password, firstName, lastName, role, licenseNumber } =
-      createUserDto;
+  async register(createUserDto: Prisma.UserCreateInput) {
+    const { email, password, ...rest } = createUserDto;
 
-    try {
-      // Check if user already exists
-      const existingUser = await this.prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingUser) {
-        throw new ConflictException(
-          'Email already in use. Please choose a different email address.',
-        );
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create the user
-      const user = await this.prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          firstName,
-          lastName,
-          role,
-          licenseNumber,
-        },
-      });
-
-      // Generate tokens
-      const tokens = await this.generateTokens(user.id, user.role);
-
-      // Exclude the password from the response
-      const { password: _, ...userWithoutPassword } = user;
-
-      return {
-        message: 'Registration successful!',
-        user: userWithoutPassword,
-        ...tokens,
-      };
-    } catch (error) {
-      // Handle validation errors
-      if (error instanceof Prisma.PrismaClientValidationError) {
-        throw new BadRequestException(`Validation error: ${error.message}`);
-      } else {
-        throw new BadRequestException(
-          'An unexpected error occurred while registering the user.',
-        );
-      }
+    // Check if user already exists
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new ConflictException(
+        'Email already in use. Please choose a different email address.',
+      );
     }
+
+    // Hash the password and create the user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await this.prisma.user.create({
+      data: {
+        ...rest,
+        email,
+        password: hashedPassword,
+      },
+    });
+
+    // Generate tokens
+    const tokens = await this.generateTokens(user.id, user.role);
+
+    // Return response excluding password
+    const { password: _, ...userWithoutPassword } = user;
+    return {
+      message: 'Registration successful!',
+      user: userWithoutPassword,
+      ...tokens,
+    };
   }
 
   async findAllUsers(): Promise<Partial<User>[]> {
