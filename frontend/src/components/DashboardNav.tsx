@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Avatar from '@/assets/avatar.jpg';
+import { Link } from 'react-router-dom';
 
 export default function DashboardNav() {
 
@@ -55,7 +56,9 @@ export default function DashboardNav() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="cursor-pointer text-red-600">
                             <LogOut className="mr-2 h-4 w-4" />
+                            <Link to="/">
                             <span>Logout</span>
+                            </Link>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

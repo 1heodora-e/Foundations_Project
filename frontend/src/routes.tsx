@@ -8,6 +8,7 @@ import Doctors from './pages/doctors/Doctors';
 import Patients from './pages/patients/Patients';
 import Departments from './pages/departments/Departments';
 import { AuthProvider } from './context/AuthContext';
+import Help from './pages/help';
 
 export const router = createBrowserRouter([
   {
@@ -76,6 +77,14 @@ export const router = createBrowserRouter([
         element: (
           // <ProtectedRoute>
             <Departments />
+          // </ProtectedRoute>
+        )
+      },
+      {
+        path: "help",
+        element: (
+          // <ProtectedRoute>
+            <Help />
           // </ProtectedRoute>
         )
       }

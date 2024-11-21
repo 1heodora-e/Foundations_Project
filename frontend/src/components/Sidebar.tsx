@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Logo from "../assets/logo.svg";
 import { 
   MdDashboard, 
@@ -32,9 +32,9 @@ export default function Sidebar() {
           const isActive = location.pathname === item.path;
           
           return (
-            <a
+            <Link
               key={item.path}
-              href={item.path}
+              to={item.path}
               className={`flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors
                 ${isActive ? 'text-blue-600 bg-blue-50' : 'text-gray-600'}`}
             >
@@ -42,7 +42,7 @@ export default function Sidebar() {
               <span className={`text-sm font-medium ${isActive ? 'text-blue-600' : 'text-gray-700'}`}>
                 {item.label}
               </span>
-            </a>
+            </Link>
           );
         })}
       </section>
