@@ -6,17 +6,19 @@ import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
+import Appointments from './pages/appointment/Appointments';
 
 export const router = createBrowserRouter([
   {
-    path: '/',
-    element: (
-      <AuthProvider>
-        <Layout />
-      </AuthProvider>
-    ),
+    // path: '/',
+    // element: (
+    //   <AuthProvider>
+    //     <Layout isAuthorized={false} />
+    //   </AuthProvider>
+    // ),
     children: [
       {
+        path: '/',
         index: true,
         element: <HomePage />,
       },
@@ -31,11 +33,19 @@ export const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: (
-          <ProtectedRoute>
+          // <ProtectedRoute>
             <Dashboard />
-          </ProtectedRoute>
+          // </ProtectedRoute>
         ),
       },
+      {
+        path: "appointments",
+        element: (
+          // <ProtectedRoute>
+            <Appointments />
+          // </ProtectedRoute>
+        )
+      }
     ],
   },
 ]);

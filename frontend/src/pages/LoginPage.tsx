@@ -4,6 +4,7 @@ import { Mail, Lock } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuth } from '../context/AuthContext';
+import Layout from '@/components/Layout';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ export default function LoginPage() {
   };
 
   return (
+    <Layout isAuthorized={false}>
     <div className="min-h-screen flex">
       {/* Left side - Preview */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 flex-col text-white justify-between">
@@ -107,5 +109,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+    </Layout>
   );
 }

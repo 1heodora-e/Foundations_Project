@@ -1,14 +1,13 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
-import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
 import DashboardNav from './DashboardNav';
 
-export default function Layout() {
-  const {user} = useAuth();
+export default function Layout({isAuthorized, children}: {isAuthorized: boolean, children: React.ReactNode}) {
+  // const {user} = useAuth();
   return (
     <>
-    {!user ? 
+    {!isAuthorized ? 
       <div className="min-h-screen bg-gray-50">
       <Navbar />
       <main>
@@ -23,7 +22,8 @@ export default function Layout() {
        <section className='w-[82%] h-screen bg-light'>
        <DashboardNav />
         <div>
-          <Outlet />
+          {/* <Outlet /> */}
+          {children}
         </div>
        </section>
       </div>
