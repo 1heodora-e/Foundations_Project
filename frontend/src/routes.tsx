@@ -2,11 +2,10 @@ import { createBrowserRouter } from 'react-router-dom';
 import SignupPage from './pages/SignupPage';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/dashboard/Dashboard';
-import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
-import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider } from './context/AuthContext';
 import Appointments from './pages/appointment/Appointments';
+import Doctors from './pages/doctors/Doctors';
+import Patients from './pages/patients/Patients';
 
 export const router = createBrowserRouter([
   {
@@ -43,6 +42,22 @@ export const router = createBrowserRouter([
         element: (
           // <ProtectedRoute>
             <Appointments />
+          // </ProtectedRoute>
+        )
+      },
+      {
+        path: "doctors",
+        element: (
+          // <ProtectedRoute>
+            <Doctors />
+          // </ProtectedRoute>
+        )
+      },
+      {
+        path: "patients",
+        element: (
+          // <ProtectedRoute>
+            <Patients />
           // </ProtectedRoute>
         )
       }
