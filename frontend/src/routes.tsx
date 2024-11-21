@@ -6,6 +6,8 @@ import HomePage from './pages/HomePage';
 import Appointments from './pages/appointment/Appointments';
 import Doctors from './pages/doctors/Doctors';
 import Patients from './pages/patients/Patients';
+import Departments from './pages/departments/Departments';
+import { AuthProvider } from './context/AuthContext';
 
 export const router = createBrowserRouter([
   {
@@ -23,11 +25,19 @@ export const router = createBrowserRouter([
       },
       {
         path: 'signup',
-        element: <SignupPage />,
+        element: 
+          <AuthProvider>
+            <SignupPage />
+          </AuthProvider>
       },
       {
         path: 'login',
-        element: <LoginPage />,
+
+        element: (
+          <AuthProvider>
+            <LoginPage />,
+          </AuthProvider>
+        )
       },
       {
         path: 'dashboard',
@@ -58,6 +68,14 @@ export const router = createBrowserRouter([
         element: (
           // <ProtectedRoute>
             <Patients />
+          // </ProtectedRoute>
+        )
+      },
+      {
+        path: "departments",
+        element: (
+          // <ProtectedRoute>
+            <Departments />
           // </ProtectedRoute>
         )
       }

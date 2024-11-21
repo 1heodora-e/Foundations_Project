@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Lock, Mail, User } from 'lucide-react';
-import Layout from '@/components/Layout';
+// import Layout from '@/components/Layout';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -30,7 +30,7 @@ export default function SignupPage() {
   };
 
   return (
-    <Layout isAuthorized={false}>
+    // <Layout isAuthorized={false}>
     <div className="min-h-[calc(100vh-4rem)] flex">
       {/* Left side - Preview */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 flex-col text-white justify-between">
@@ -209,6 +209,5 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
-    </Layout>
   );
 }

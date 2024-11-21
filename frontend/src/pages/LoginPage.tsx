@@ -4,7 +4,7 @@ import { Mail, Lock } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { useAuth } from '../context/AuthContext';
-import Layout from '@/components/Layout';
+// import Layout from '@/components/Layout';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,13 +17,15 @@ export default function LoginPage() {
     setError('');
     try {
       await login(email, password);
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err:any) {
+      console.log(err)
       setError('Invalid email or password');
     }
   };
 
   return (
-    <Layout isAuthorized={false}>
+    // <Layout isAuthorized={false}>
     <div className="min-h-screen flex">
       {/* Left side - Preview */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 flex-col text-white justify-between">
@@ -94,8 +96,10 @@ export default function LoginPage() {
               </Button>
               
               <Button variant="outline" type="button">
+                <section className='flex items-center'>
                 <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 mr-2" />
                 Sign in with Google
+                </section>
               </Button>
             </div>
 
@@ -109,6 +113,6 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
-    </Layout>
+    // </Layout>
   );
 }
