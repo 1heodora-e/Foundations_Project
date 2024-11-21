@@ -22,7 +22,7 @@ export default function Navbar() {
               className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center space-x-1 hover:bg-blue-700 transition-colors"
             >
               <LogIn className="h-5 w-5" />
-              <span>Sign Up</span>
+              <span>Sign In</span>
             </Link>
           </div>
         </div>

@@ -27,7 +27,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Mock validation
-      if (email === 'user@example.com' && password === 'password') {
+      // if (email === 'user@example.com' && password === 'password') {
+      if(email && password) {
         setUser({ email, name: 'John Doe' });
         navigate('/dashboard');
       } else {
