@@ -92,7 +92,7 @@ export default function Help() {
 
   return (
     <Layout isAuthorized={true}>
-      <main className="p-6 max-w-6xl mx-auto h-[90vh] overflow-x-scroll">
+      <main className="p-6 max-w-6xl mx-auto h-[90vh] overflow-x-scroll hide-scrollbar">
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-gray-900">Help Center</h1>

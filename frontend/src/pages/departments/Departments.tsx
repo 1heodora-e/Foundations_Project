@@ -35,11 +35,44 @@ const departments = [
     id: 2,
     name: "Neurology",
     dateOpened: "2023-05-15",
-    headOfDepartment: "Dr. Johnson",
-    status: "Inactive",
+    headOfDepartment: "Dr. Wilson",
+    status: "Active",
     numberOfCases: 80,
   },
+  {
+    id: 3,
+    name: "Dermatology",
+    dateOpened: "2022-09-10",
+    headOfDepartment: "Dr. Brown",
+    status: "Active",
+    numberOfCases: 65,
+  },
+  {
+    id: 4,
+    name: "General Practice",
+    dateOpened: "2020-03-20",
+    headOfDepartment: "Dr. Smith",
+    status: "Active",
+    numberOfCases: 200,
+  },
+  {
+    id: 5,
+    name: "Sports Medicine",
+    dateOpened: "2021-11-12",
+    headOfDepartment: "Dr. Evans",
+    status: "Active",
+    numberOfCases: 50,
+  },
+  {
+    id: 6,
+    name: "Pediatrics",
+    dateOpened: "2019-07-01",
+    headOfDepartment: "Dr. Miller",
+    status: "Inactive",
+    numberOfCases: 95,
+  },
 ];
+
 
 const doctors = ["Dr. Smith", "Dr. Johnson", "Dr. Adams"];
 const statuses = ["Active", "Inactive"];
@@ -132,7 +165,7 @@ export default function Departments() {
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-50">
-                <TableHead className="font-semibold">Department</TableHead>
+                <TableHead className="font-semibold pl-6">Department</TableHead>
                 <TableHead className="font-semibold">Date Opened</TableHead>
                 <TableHead className="font-semibold">Head of Department</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
@@ -143,7 +176,7 @@ export default function Departments() {
             <TableBody>
               {filteredDepartments.map((department) => (
                 <TableRow key={department.id} className="hover:bg-gray-50">
-                  <TableCell>{department.name}</TableCell>
+                  <TableCell className="pl-6">{department.name}</TableCell>
                   <TableCell className="text-gray-600">{department.dateOpened}</TableCell>
                   <TableCell className="text-gray-600">{department.headOfDepartment}</TableCell>
                   <TableCell>

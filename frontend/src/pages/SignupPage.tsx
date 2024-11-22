@@ -33,7 +33,7 @@ export default function SignupPage() {
     // <Layout isAuthorized={false}>
     <div className="min-h-[calc(100vh-4rem)] flex">
       {/* Left side - Preview */}
-      <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 flex-col text-white justify-between">
+      <div className="hidden lg:flex lg:w-1/2 bg-blue-600 h-[100vh] p-12 flex-col text-white justify-between">
         <div>
           <h2 className="text-3xl font-bold mb-4">Signup on<br />Ubuzima Connect</h2>
           <p className="text-blue-100">For business, band or celebrity</p>
