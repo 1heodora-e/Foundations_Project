@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Req,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
@@ -32,7 +33,10 @@ export class AppointmentsController {
     status: 403,
     description: 'Forbidden: Only GPs can create appointments',
   })
-  create(@Req() req: any, @Body() createAppointmentDto: CreateAppointmentDto) {
+  create(
+    @Req() req: any,
+    @Body(ValidationPipe) createAppointmentDto: CreateAppointmentDto,
+  ) {
     const userId = req.user.id;
     return this.appointmentsService.create(createAppointmentDto, userId);
   }
@@ -77,7 +81,7 @@ export class AppointmentsController {
   @ApiResponse({ status: 404, description: 'Appointment not found' })
   update(
     @Param('id') id: string,
-    @Body() updateAppointmentDto: UpdateAppointmentDto,
+    @Body(ValidationPipe) updateAppointmentDto: UpdateAppointmentDto,
     @Req() req: any,
   ) {
     const userId = req.user.id;

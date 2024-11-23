@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsFutureDate } from '../../common/validators/date.validator';
 
 export class CreateAppointmentDto {
   @ApiProperty({
@@ -30,6 +31,7 @@ export class CreateAppointmentDto {
     example: '2021-01-01T00:00:00.000Z',
   })
   @IsDateString()
+  @IsFutureDate({ message: 'Appointment date must be in the future' })
   date: string;
 
   @ApiProperty({
@@ -48,3 +50,4 @@ export class CreateAppointmentDto {
   @IsString()
   notes?: string;
 }
+

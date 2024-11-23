@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsPastDate } from '../../common/validators/date.validator';
 
 export class CreatePatientDto {
   @ApiProperty({
@@ -24,6 +25,7 @@ export class CreatePatientDto {
     required: true,
   })
   @IsDateString()
+  @IsPastDate({ message: 'Date of birth must be in the past' })
   dateOfBirth: string;
 
   @ApiProperty({

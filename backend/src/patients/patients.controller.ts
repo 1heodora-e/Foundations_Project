@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ValidationPipe } from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
@@ -17,7 +17,10 @@ export class PatientsController {
   @ApiOperation({ summary: 'Create a new patient' })
   @ApiResponse({ status: 201, description: 'Patient created successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  create(@Req() req: any, @Body() createPatientDto: CreatePatientDto) {
+  create(
+    @Req() req: any,
+    @Body(ValidationPipe) createPatientDto: CreatePatientDto,
+  ) {
     const userId = req.user.id;
     return this.patientsService.create(createPatientDto, userId);
   }
@@ -53,7 +56,10 @@ export class PatientsController {
   @ApiResponse({ status: 200, description: 'Successfully updated patient' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Patient not found' })
-  update(@Param('id') id: string, @Body() updatePatientDto: UpdatePatientDto) {
+  update(
+    @Param('id') id: string,
+    @Body(ValidationPipe) updatePatientDto: UpdatePatientDto,
+  ) {
     return this.patientsService.update(id, updatePatientDto);
   }
 

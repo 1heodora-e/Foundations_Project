@@ -8,10 +8,14 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UserRole, AppointmentStatus } from '@prisma/client';
+import { SmsService } from '../common/services/sms.service';
 
 @Injectable()
 export class AppointmentsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private smsService: SmsService,
+  ) {}
 
   // Modified validation method
   private async validateDoctor(userId: string, role: UserRole) {
@@ -46,7 +50,6 @@ export class AppointmentsService {
   }
 
   async create(createAppointmentDto: CreateAppointmentDto, userId: string) {
-
     if (userId !== createAppointmentDto.gpId) {
       // check if user is an admin
       const user = await this.prisma.user.findUnique({
@@ -61,24 +64,19 @@ export class AppointmentsService {
       }
     }
 
-    // Validate GP (userId)
+    // Validations...
     await this.validateDoctor(createAppointmentDto.gpId, UserRole.GP);
-
-    // Only validate specialist if provided
     if (createAppointmentDto.specialistId) {
       await this.validateDoctor(
         createAppointmentDto.specialistId,
         UserRole.SPECIALIST,
       );
     }
-
-    // Validate patient
     await this.validatePatient(createAppointmentDto.patientId);
 
-    return this.prisma.appointment.create({
+    const appointment = await this.prisma.appointment.create({
       data: {
         ...createAppointmentDto,
-        gpId: userId,
         status: AppointmentStatus.PENDING,
       },
       include: {
@@ -87,6 +85,47 @@ export class AppointmentsService {
         gp: true,
       },
     });
+
+    // Send notifications
+    if (appointment.patient?.phoneNumber) {
+      await this.smsService.sendNewAppointmentNotification(
+        appointment.patient.phoneNumber,
+        `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        appointment.specialist
+          ? `${appointment.specialist.firstName} ${appointment.specialist.lastName}`
+          : `${appointment.gp.firstName} ${appointment.gp.lastName}`,
+        appointment.date,
+        'patient',
+      );
+    }
+
+    if (appointment.specialist?.phoneNumber) {
+      await this.smsService.sendNewAppointmentNotification(
+        appointment.specialist.phoneNumber,
+        `${appointment.specialist.firstName} ${appointment.specialist.lastName}`,
+        `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        `${appointment.specialist.firstName} ${appointment.specialist.lastName}`,
+        appointment.date,
+        'specialist',
+      );
+    }
+
+    // Send notification to GP if created by admin
+    if (userId !== appointment.gpId && appointment.gp?.phoneNumber) {
+      await this.smsService.sendNewAppointmentNotification(
+        appointment.gp.phoneNumber,
+        `${appointment.gp.firstName} ${appointment.gp.lastName}`,
+        `${appointment.patient.firstName} ${appointment.patient.lastName}`,
+        appointment.specialist
+          ? `${appointment.specialist.firstName} ${appointment.specialist.lastName}`
+          : `${appointment.gp.firstName} ${appointment.gp.lastName}`,
+        appointment.date,
+        'gp',
+      );
+    }
+
+    return appointment;
   }
 
   async findAll(userId: string, userRole: UserRole) {
@@ -142,7 +181,14 @@ export class AppointmentsService {
   ) {
     const existingAppointment = await this.findOne(id, userId, userRole);
 
-    // Only validate specialist if it's being updated
+    // Prevent non-admin users from changing GP
+    if (updateAppointmentDto.gpId && userRole !== UserRole.ADMIN) {
+      throw new ForbiddenException(
+        'Only administrators can change the GP assignment',
+      );
+    }
+
+    // Validate updates...
     if (
       updateAppointmentDto.specialistId &&
       updateAppointmentDto.specialistId !== existingAppointment.specialistId
@@ -153,7 +199,6 @@ export class AppointmentsService {
       );
     }
 
-    // Only validate GP if it's being updated
     if (
       updateAppointmentDto.gpId &&
       updateAppointmentDto.gpId !== existingAppointment.gpId
@@ -161,7 +206,6 @@ export class AppointmentsService {
       await this.validateDoctor(updateAppointmentDto.gpId, UserRole.GP);
     }
 
-    // Only validate patient if it's being updated
     if (
       updateAppointmentDto.patientId &&
       updateAppointmentDto.patientId !== existingAppointment.patientId
@@ -169,7 +213,7 @@ export class AppointmentsService {
       await this.validatePatient(updateAppointmentDto.patientId);
     }
 
-    return this.prisma.appointment.update({
+    const updatedAppointment = await this.prisma.appointment.update({
       where: { id },
       data: updateAppointmentDto,
       include: {
@@ -178,6 +222,51 @@ export class AppointmentsService {
         gp: true,
       },
     });
+
+    // Send notifications if date was updated
+    if (updateAppointmentDto.date) {
+      // Notify patient
+      if (updatedAppointment.patient?.phoneNumber) {
+        await this.smsService.sendAppointmentUpdateNotification(
+          updatedAppointment.patient.phoneNumber,
+          `${updatedAppointment.patient.firstName} ${updatedAppointment.patient.lastName}`,
+          `${updatedAppointment.patient.firstName} ${updatedAppointment.patient.lastName}`,
+          updatedAppointment.specialist
+            ? `${updatedAppointment.specialist.firstName} ${updatedAppointment.specialist.lastName}`
+            : `${updatedAppointment.gp.firstName} ${updatedAppointment.gp.lastName}`,
+          updatedAppointment.date,
+          'patient',
+        );
+      }
+
+      // Notify specialist
+      if (updatedAppointment.specialist?.phoneNumber) {
+        await this.smsService.sendAppointmentUpdateNotification(
+          updatedAppointment.specialist.phoneNumber,
+          `${updatedAppointment.specialist.firstName} ${updatedAppointment.specialist.lastName}`,
+          `${updatedAppointment.patient.firstName} ${updatedAppointment.patient.lastName}`,
+          `${updatedAppointment.specialist.firstName} ${updatedAppointment.specialist.lastName}`,
+          updatedAppointment.date,
+          'specialist',
+        );
+      }
+
+      // Notify GP if updated by admin
+      if (userRole === UserRole.ADMIN && updatedAppointment.gp?.phoneNumber) {
+        await this.smsService.sendAppointmentUpdateNotification(
+          updatedAppointment.gp.phoneNumber,
+          `${updatedAppointment.gp.firstName} ${updatedAppointment.gp.lastName}`,
+          `${updatedAppointment.patient.firstName} ${updatedAppointment.patient.lastName}`,
+          updatedAppointment.specialist
+            ? `${updatedAppointment.specialist.firstName} ${updatedAppointment.specialist.lastName}`
+            : `${updatedAppointment.gp.firstName} ${updatedAppointment.gp.lastName}`,
+          updatedAppointment.date,
+          'gp',
+        );
+      }
+    }
+
+    return updatedAppointment;
   }
 
   async remove(id: string, userId: string, userRole: UserRole) {

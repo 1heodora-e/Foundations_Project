@@ -3,6 +3,7 @@ import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { JwtModule } from '@nestjs/jwt';
+import { SmsService } from '../common/services/sms.service';
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [AppointmentsController],
-  providers: [AppointmentsService],
+  providers: [AppointmentsService, SmsService],
 })
 export class AppointmentsModule {}
