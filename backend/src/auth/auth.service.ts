@@ -31,6 +31,16 @@ export class AuthService {
         'Email already in use. Please choose a different email address.',
       );
     }
+    
+    // check if license number is already in use
+    const existingLicenseNumber = await this.prisma.user.findUnique({
+      where: { licenseNumber: createUserDto.licenseNumber },
+    });
+    if (existingLicenseNumber) {
+      throw new ConflictException(
+        'License number already in use. Please choose a different license number.',
+      );
+    }
 
     // Hash the password and create the user
     const hashedPassword = await bcrypt.hash(password, 10);
