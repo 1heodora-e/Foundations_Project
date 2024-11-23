@@ -21,10 +21,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .addServer('http://localhost:3000', 'Local Development')
-    .addServer('https://api.ubuzimaconnect.rw', 'Production') // Add your actual production URL
+    .addServer('https://api.ubuzima-connect.s2s.rw', 'Production')
     .setContact(
       'Ubuzima Connect Team',
-      'https://ubuzimaconnect.rw',
+      'https://ubuzima-connect.vercel.app/',
       'team@ubuzimaconnect.rw',
     )
     .setLicense('Private', 'https://ubuzimaconnect.rw/license')

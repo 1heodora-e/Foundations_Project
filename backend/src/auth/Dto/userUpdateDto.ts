@@ -5,7 +5,7 @@ import {
   IsEnum,
   IsEmail,
 } from 'class-validator';
-import { UserRole } from '@prisma/client';
+import { UserAvailability, UserRole } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
@@ -89,4 +89,14 @@ export class UpdateUserDto {
   @IsStrongPassword()
   @IsOptional()
   password?: string;
+
+  @ApiProperty({
+    description: 'The user\'s availability status',
+    example: UserAvailability.AVAILABLE,
+    required: false,
+  })
+  @IsEnum(UserAvailability)
+  @IsOptional()
+  availability?: UserAvailability;
+
 }

@@ -26,6 +26,12 @@ enum AppointmentStatus {
   COMPLETED
 }
 
+enum UserAvailability {
+  AVAILABLE
+  BUSY
+  ON_LEAVE
+}
+
 model User {
   id                 String   @id @default(uuid())
   email              String   @unique
@@ -34,9 +40,10 @@ model User {
   lastName           String
   role               UserRole
   specialization     String?
-  licenseNumber      String
+  licenseNumber      String @unique
   phoneNumber        String?
   hospitalAffiliation String?
+  availability       UserAvailability @default(AVAILABLE)
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -55,7 +62,7 @@ model Patient {
   id               String   @id @default(uuid())
   firstName        String
   lastName         String
-  dateOfBirth      DateTime
+  dateOfBirth      DateTime @db.Date
   gender           String
   phoneNumber      String?
   address          String?
@@ -76,7 +83,7 @@ model Appointment {
   id            String            @id @default(uuid())
   patientId     String
   gpId          String
-  specialistId  String
+  specialistId  String?
   date          DateTime
   status        AppointmentStatus
   reason        String
@@ -87,7 +94,7 @@ model Appointment {
   // Relations
   patient        Patient  @relation(fields: [patientId], references: [id])
   gp             User     @relation("GPAppointments", fields: [gpId], references: [id])
-  specialist     User     @relation("SpecialistAppointments", fields: [specialistId], references: [id])
+  specialist     User?     @relation("SpecialistAppointments", fields: [specialistId], references: [id])
 
   @@map("appointments")
 }
