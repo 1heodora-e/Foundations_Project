@@ -17,3 +17,11 @@ Ubuzima Connect is a web platform that aims to enhance healthcare in Rwanda by c
   - TailwindCSS
   - JavaScript
   - React.js
+ 
+## Installation
+
+To run this application locally, follow these steps:
+
+1. Clone this repository.
+2. Navigate to the project directory.
+3. Install dependencies in both Backend and Frontend
