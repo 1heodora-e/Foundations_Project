@@ -1,26 +1,25 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Mail, Lock } from 'lucide-react';
-import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
-import { useAuth } from '../context/AuthContext';
-// import Layout from '@/components/Layout';
+import { Link } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import { LoginFormData } from "../types";
+import { useForm } from "react-hook-form";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const { login, isLoading } = useAuth();
+  const { register, handleSubmit } = useForm<LoginFormData>();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const handleLogin = async (data: LoginFormData) => {
     try {
-      await login(email, password);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err:any) {
-      console.log(err)
-      setError('Invalid email or password');
+      await login(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
     }
   };
 
@@ -30,7 +29,11 @@ export default function LoginPage() {
       {/* Left side - Preview */}
       <div className="hidden lg:flex lg:w-1/2 bg-blue-600 p-12 flex-col text-white justify-between">
         <div>
-          <h2 className="text-3xl font-bold mb-4">Welcome Back to<br />Ubuzima Connect</h2>
+          <h2 className="text-3xl font-bold mb-4">
+            Welcome Back to
+            <br />
+            Ubuzima Connect
+          </h2>
           <p className="text-blue-100">Your healthcare management platform</p>
         </div>
         <img
@@ -44,33 +47,29 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 p-8 sm:p-12 lg:p-16 flex items-center">
         <div className="w-full max-w-md mx-auto">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Login to your account</h1>
-            <p className="text-gray-600">Welcome back! Please enter your details</p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Login to your account
+            </h1>
+            <p className="text-gray-600">
+              Welcome back! Please enter your details
+            </p>
           </div>
 
-          {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-md">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit(handleLogin)} className="space-y-6">
             <Input
+              {...register("email")}
               label="Email"
               type="email"
               icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="Enter your email"
             />
 
             <Input
+              {...register("password")}
               label="Password"
               type="password"
               icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Enter your password"
             />
@@ -85,7 +84,10 @@ export default function LoginPage() {
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -94,17 +96,21 @@ export default function LoginPage() {
               <Button type="submit" isLoading={isLoading}>
                 Sign in
               </Button>
-              
+
               <Button variant="outline" type="button">
-                <section className='flex items-center'>
-                <img src="https://www.google.com/favicon.ico" alt="Google" className="w-5 h-5 mr-2" />
-                Sign in with Google
+                <section className="flex items-center">
+                  <img
+                    src="https://www.google.com/favicon.ico"
+                    alt="Google"
+                    className="w-5 h-5 mr-2"
+                  />
+                  Sign in with Google
                 </section>
               </Button>
             </div>
 
             <p className="text-center text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <Link to="/signup" className="text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>
