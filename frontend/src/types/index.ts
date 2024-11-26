@@ -4,7 +4,6 @@ export interface RegistrationFormData {
   email: string;
   licenseNumber: string;
   password: string;
-  confirmPassword: string;
   rememberMe: boolean;
   agreeToTerms: boolean;
 }
