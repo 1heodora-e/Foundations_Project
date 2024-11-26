@@ -39,7 +39,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await axiosInstance.post("/users/register", {
         ...data,
         role: "ADMIN",
-        licenseNumber: "123",
       });
     } catch (error) {
       if (error instanceof Error) {
