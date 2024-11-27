@@ -5,27 +5,27 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import Input from "@/components/ui/Input";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { RegistrationFormData } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 import toast from "react-hot-toast";
 import Button from "../../components/ui/Button";
 
 // Sample data - replace with your actual data
-// const departments = [
-//   { id: 1, name: "General Medicine" },
-//   { id: 2, name: "Pediatrics" },
-//   { id: 3, name: "Cardiology" },
-// ];
+const departments = [
+  { id: 1, name: "General Medicine" },
+  { id: 2, name: "Pediatrics" },
+  { id: 3, name: "Cardiology" },
+];
 
 // const appointments = [
 //   { id: 1, appointment: "AP-23323" },
@@ -39,7 +39,7 @@ interface Props {
 }
 
 export default function AddSpecialistForm({ open, setOpen }: Props) {
-  const { register, handleSubmit } = useForm<RegistrationFormData>();
+  const { register, handleSubmit, control } = useForm<RegistrationFormData>();
   const { registerUser, isLoading } = useAuth();
 
   const handleRegister = async (data: RegistrationFormData) => {
@@ -121,26 +121,27 @@ export default function AddSpecialistForm({ open, setOpen }: Props) {
             />
           </div>
           {/* Department Selection */}
-          {/* <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="department">Department</Label>
-            <Select
-              onValueChange={(value) => handleChange("departmentId", value)}
-            >
-              <SelectTrigger id="department" className="w-full">
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map((department) => (
-                  <SelectItem
-                    key={department.id}
-    
-                  >
-                    {department.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div> */}
+            <Controller
+              name="specialization"
+              control={control}
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <SelectTrigger id="department" className="w-full">
+                    <SelectValue placeholder="Select department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map((department) => (
+                      <SelectItem key={department.id} value={department.name}>
+                        {department.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+          </div>
 
           {/* Appointment Selection */}
           {/* <div className="space-y-2">
