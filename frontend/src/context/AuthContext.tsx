@@ -36,10 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerUser = async (data: RegistrationFormData) => {
     try {
       setIsLoading(true);
-      await axiosInstance.post("/users/register", {
-        ...data,
-        role: "ADMIN",
-      });
+      await axiosInstance.post("/users/register", data);
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -52,6 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    localStorage.removeItem("token");
     navigate("/login");
   };
 

@@ -6,6 +6,7 @@ export interface RegistrationFormData {
   password: string;
   rememberMe: boolean;
   agreeToTerms: boolean;
+  role: string;
 }
 
 export interface LoginFormData {
