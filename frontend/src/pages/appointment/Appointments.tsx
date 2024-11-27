@@ -46,7 +46,7 @@ export default function Appointments() {
     return { initials, bgColor: colors[colorIndex] };
   };
 
-  const { appointments, specialistsOptions, gpsOptions, refetch, handleDeleteAppointment, isLoading } = useAppointment({setOpen: setShowNewAppointmentModal});
+  const { appointments, specialistsOptions, gpsOptions, refetch, handleDeleteAppointment } = useAppointment({setOpen: setShowNewAppointmentModal});
 
   const filteredAppointments = appointments.filter((appointment) => {
     const matchesSearch = appointment?.patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||

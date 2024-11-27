@@ -29,7 +29,7 @@ export default function Patients() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewPatientModal, setShowNewPatientModal] = useState(false);
 
-  const {patients, fetchPatients} = usePatient({setOpen: setShowNewPatientModal});
+  const {patients, fetchPatients, handleDeletePatients} = usePatient({setOpen: setShowNewPatientModal});
 
   // Function to get initials and background color based on name
   const getAvatarProps = (name: string) => {
@@ -140,7 +140,7 @@ export default function Patients() {
                         <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-blue-600 transition-colors">
                           <FiEdit className="w-4 h-4" />
                         </button>
-                        <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
+                        <button onClick={() => handleDeletePatients(patient?.id)}  className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
                           <FiTrash className="w-4 h-4" />
                         </button>
                       </div>

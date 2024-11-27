@@ -86,6 +86,20 @@ export default function usePatient({setOpen, refetch}: Props){
         fetchPatients();
     }, [])
 
+    const handleDeletePatients = (id: string) => {
+        setIsLoading(true);
+        axiosInstance.delete(`/patients/${id}`)
+        .then(() => {
+            setIsLoading(false);
+            fetchPatients();
+            toast.success("Patient deleted successfully");
+        })
+        .catch((err) => {
+            setIsLoading(false);
+            toast.error(err?.response?.message[0] || "An error occurred");
+        })
+    }
+
 
     return {
         control,
@@ -96,6 +110,7 @@ export default function usePatient({setOpen, refetch}: Props){
         setValue,
         isLoading,
         patients,
-        fetchPatients
+        fetchPatients,
+        handleDeletePatients
     }
 }
