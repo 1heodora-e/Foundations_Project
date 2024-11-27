@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -36,7 +35,7 @@ interface Props {
     setOpen: (open: boolean) => void;
 }
 export default function AddAppointmentForm({open, setOpen}: Props) {
-  const {handleSubmit, onSubmit, control, errors, register, setValue} = useAppointment();
+  const {handleSubmit, onSubmit, errors, register, setValue} = useAppointment();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 

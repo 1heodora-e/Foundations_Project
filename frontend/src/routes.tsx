@@ -4,11 +4,12 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/dashboard/Dashboard';
 import HomePage from './pages/HomePage';
 import Appointments from './pages/appointment/Appointments';
-import Doctors from './pages/doctors/Doctors';
+// import Doctors from './pages/doctors/Doctors';
 import Patients from './pages/patients/Patients';
 import Departments from './pages/departments/Departments';
 import { AuthProvider } from './context/AuthContext';
 import Help from './pages/help';
+import Specialists from './pages/specialists/Specialist';
 
 export const router = createBrowserRouter([
   {
@@ -57,10 +58,9 @@ export const router = createBrowserRouter([
         )
       },
       {
-        path: "doctors",
+        path: "specialists",
         element: (
-          // <ProtectedRoute>
-            <Doctors />
+            <Specialists />
           // </ProtectedRoute>
         )
       },

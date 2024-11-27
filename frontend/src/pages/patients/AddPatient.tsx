@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,129 +14,125 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import Input from "@/components/ui/Input";
+import usePatient from "./hooks/useAddPatients";
 
 // Sample data - replace with your actual data
-const doctors = [
-  { id: 1, name: "Dr. Smith", specialization: "General Medicine" },
-  { id: 2, name: "Dr. Adams", specialization: "Pediatrics" },
-  { id: 3, name: "Dr. Johnson", specialization: "Cardiology" },
-];
 
 interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
+  refetch?: () => void;
 }
-export default function AddPatientForm({ open, setOpen }: Props) {
-  const [formData, setFormData] = useState({
-    patientName: "",
-    patientEmail: "",
-    patientPhone: "",
-    doctorId: "",
-    condition: "",
-  });
 
-  // Handle form submission
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
-    setOpen(false);
-    // Reset form
-    setFormData({
-      patientName: "",
-      patientEmail: "",
-      patientPhone: "",
-      doctorId: "",
-      condition: "",
-    });
-  };
-
-  const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+export default function AddPatientForm({ open, setOpen, refetch }: Props) {
+  const { register, setValue, errors, handleSubmit, onSubmit, isLoading } = usePatient({setOpen, refetch});
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Create New Patient</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="mt-4 space-y-6">
-          {/* Patient Name Input */}
-          <div className="space-y-2">
-            <Label htmlFor="patientName">Patient Name</Label>
-            <Input
-              id="patientName"
-              value={formData.patientName}
-              className="text-sm"
-              onChange={(e) => handleChange("patientName", e.target.value)}
-              placeholder="Enter patient's name"
-            />
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-4 space-y-6">
+          {/* First Row */}
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                className="text-sm"
+                placeholder="Enter first name"
+                {...register("firstName")}
+              />
+              {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                className="text-sm"
+                placeholder="Enter last name"
+                {...register("lastName")}
+              />
+              {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
+            </div>
           </div>
 
-          {/* Patient Email Input */}
-          <div className="space-y-2">
-            <Label htmlFor="patientEmail">Patient Email</Label>
-            <Input
-              id="patientEmail"
-              value={formData.patientEmail}
-              className="text-sm"
-              onChange={(e) => handleChange("patientEmail", e.target.value)}
-              placeholder="Enter patient's email"
-            />
+          {/* Second Row */}
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Select onValueChange={(value) => setValue("gender", value)}>
+                <SelectTrigger id="gender" className="w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.gender && <p className="text-red-500 text-sm">{errors.gender.message}</p>}
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <Input
+                id="dateOfBirth"
+                type="date"
+                className="text-sm"
+                {...register("dateOfBirth")}
+              />
+              {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth.message}</p>}
+            </div>
           </div>
 
-          {/* Patient Phone Input */}
-          <div className="space-y-2">
-            <Label htmlFor="patientPhone">Patient Phone</Label>
-            <Input
-              id="patientPhone"
-              value={formData.patientPhone}
-              className="text-sm"
-              onChange={(e) => handleChange("patientPhone", e.target.value)}
-              placeholder="Enter patient's phone number"
-            />
+          {/* Third Row */}
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input
+                id="phoneNumber"
+                className="text-sm"
+                placeholder="Enter phone number"
+                {...register("phoneNumber")}
+              />
+              {errors.phoneNumber && <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>}
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Input
+                id="address"
+                className="text-sm"
+                placeholder="Enter address"
+                {...register("address")}
+              />
+              {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
+            </div>
           </div>
 
-          {/* Doctor Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="doctor">Doctor</Label>
-            <Select
-              value={formData.doctorId}
-              onValueChange={(value) => handleChange("doctorId", value)}
-            >
-              <SelectTrigger id="doctor" className="w-full">
-                <SelectValue placeholder="Select doctor" />
-              </SelectTrigger>
-              <SelectContent>
-                {doctors.map((doctor) => (
-                  <SelectItem key={doctor.id} value={doctor.id.toString()}>
-                    <div>
-                      <span>{doctor.name}</span>
-                      <span className="ml-2 text-sm text-gray-500">
-                        ({doctor.specialization})
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Condition Input */}
-          <div className="space-y-2">
-            <Label htmlFor="condition">Condition</Label>
-            <Input
-              id="condition"
-              value={formData.condition}
-              className="text-sm"
-              onChange={(e) => handleChange("condition", e.target.value)}
-              placeholder="Enter patient's condition"
-            />
+          {/* Fourth Row */}
+          <div className="flex gap-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="emergencyContact">Emergency Contact</Label>
+              <Input
+                id="emergencyContact"
+                className="text-sm"
+                placeholder="Enter emergency contact name"
+                {...register("emergencyContact")}
+              />
+              {errors.emergencyContact && <p className="text-red-500 text-sm">{errors.emergencyContact.message}</p>}
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="emergencyPhone">Emergency Phone</Label>
+              <Input
+                id="emergencyPhone"
+                className="text-sm"
+                placeholder="Enter emergency phone number"
+                {...register("emergencyPhone")}
+              />
+              {errors.emergencyPhone && <p className="text-red-500 text-sm">{errors.emergencyPhone.message}</p>}
+            </div>
           </div>
 
           <DialogFooter className="gap-3">
@@ -152,7 +147,7 @@ export default function AddPatientForm({ open, setOpen }: Props) {
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Save & Open Appointment
+             {isLoading ? "Loading..." : "Create Patient"}
             </button>
           </DialogFooter>
         </form>
