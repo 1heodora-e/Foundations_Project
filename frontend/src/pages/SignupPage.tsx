@@ -15,7 +15,7 @@ export default function SignupPage() {
 
   const handleRegister = async (data: RegistrationFormData) => {
     try {
-      await registerUser(data);
+      await registerUser({ ...data, role: "GP" });
       toast.success("Account created successfully");
       navigate("/login");
     } catch (error) {
@@ -90,7 +90,7 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email or phone number
+                Email
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
