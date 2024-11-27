@@ -8,6 +8,7 @@ export interface RegistrationFormData {
   agreeToTerms: boolean;
   role: string;
   specialization?: string;
+  id?: string;
 }
 
 export interface LoginFormData {

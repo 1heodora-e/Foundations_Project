@@ -22,6 +22,7 @@ import { ChevronDown, Filter } from "lucide-react";
 import AddSpecialistForm from "./AddSpecialist";
 import { RegistrationFormData } from "../../types";
 import { axiosInstance } from "../../lib/axios";
+import toast from "react-hot-toast";
 
 //fetch doctors from the backend
 
@@ -37,21 +38,35 @@ export default function Specialists() {
   const [doctors, setDoctors] = useState<RegistrationFormData[]>([]);
 
   useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const response = await axiosInstance.get("/users/users");
-        const data = response.data;
-        //filter the data and remain with the ones with role of specialist
-        const specialists: RegistrationFormData[] = data.filter(
-          (doctor: RegistrationFormData) => doctor.role === "SPECIALIST"
-        );
-        setDoctors(specialists);
-      } catch (error) {
-        console.error("Fetch doctors error: ", error);
-      }
-    };
     fetchDoctors();
   }, [showNewSpecialistModal]);
+
+  const fetchDoctors = async () => {
+    try {
+      const response = await axiosInstance.get("/users/users");
+      const data = response.data;
+      //filter the data and remain with the ones with role of specialist
+      const specialists: RegistrationFormData[] = data.filter(
+        (doctor: RegistrationFormData) => doctor.role === "SPECIALIST"
+      );
+      setDoctors(specialists);
+    } catch (error) {
+      console.error("Fetch doctors error: ", error);
+    }
+  };
+
+  const handleDeleteSpecialist = (id: string) => {
+    axiosInstance
+      .delete(`/users/users/${id}`)
+      .then(() => {
+        fetchDoctors();
+        toast.success("Specialist deleted successfully");
+      })
+      .catch((err) => {
+        console.error("Specialist doctor error: ", err);
+        toast.error(err?.response?.message[0] || "An error occurred");
+      });
+  }
 
   // Function to get initials and background color based on name
   const getAvatarProps = (name: string) => {
@@ -210,7 +225,7 @@ export default function Specialists() {
                         <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-blue-600 transition-colors">
                           <FiEdit className="w-4 h-4" />
                         </button>
-                        <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
+                        <button onClick={() => handleDeleteSpecialist(doctor?.id as string)} className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
                           <FiTrash className="w-4 h-4" />
                         </button>
                       </div>
