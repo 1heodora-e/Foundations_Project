@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -20,79 +20,10 @@ import {
 import Input from "@/components/ui/Input";
 import { ChevronDown, Filter } from "lucide-react";
 import AddSpecialistForm from "./AddSpecialist";
+import { RegistrationFormData } from "../../types";
+import { axiosInstance } from "../../lib/axios";
 
-const doctors = [
-  {
-    id: 1,
-    name: "Dr. Smith",
-    email: "smith@example.com",
-    phone: "123-456-7890",
-    assignedAppointment: "AP-101",
-    currentPatient: "John Doe",
-    department: "General Practice",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Dr. Adams",
-    email: "adams@example.com",
-    phone: "987-654-3210",
-    assignedAppointment: "AP-202",
-    currentPatient: "Jane Smith",
-    department: "Internal Medicine",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Dr. Brown",
-    email: "brown@example.com",
-    phone: "456-789-1234",
-    assignedAppointment: "AP-303",
-    currentPatient: "David Garcia",
-    department: "Dermatology",
-    status: "Active",
-  },
-  {
-    id: 4,
-    name: "Dr. Clark",
-    email: "clark@example.com",
-    phone: "321-654-9870",
-    assignedAppointment: "AP-404",
-    currentPatient: "Bob Lee",
-    department: "Orthopedics",
-    status: "Active",
-  },
-  {
-    id: 5,
-    name: "Dr. Miller",
-    email: "miller@example.com",
-    phone: "654-321-9870",
-    assignedAppointment: "AP-505",
-    currentPatient: "George Miller",
-    department: "Pediatrics",
-    status: "On Leave",
-  },
-  {
-    id: 6,
-    name: "Dr. Wilson",
-    email: "wilson@example.com",
-    phone: "789-123-4567",
-    assignedAppointment: "AP-606",
-    currentPatient: "Fiona Wilson",
-    department: "Neurology",
-    status: "Active",
-  },
-  {
-    id: 7,
-    name: "Dr. Evans",
-    email: "evans@example.com",
-    phone: "852-963-7410",
-    assignedAppointment: "AP-707",
-    currentPatient: "Chris Evans",
-    department: "Sports Medicine",
-    status: "Active",
-  },
-];
+//fetch doctors from the backend
 
 const statuses = ["Active", "On Leave", "Unavailable"];
 const departments = ["Cardiology", "Neurology", "Pediatrics"];
@@ -102,6 +33,25 @@ export default function Specialists() {
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewSpecialistModal, setShowNewSpecialistModal] = useState(false);
+
+  const [doctors, setDoctors] = useState<RegistrationFormData[]>([]);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axiosInstance.get("/users/users");
+        const data = response.data;
+        //filter the data and remain with the ones with role of specialist
+        const specialists: RegistrationFormData[] = data.filter(
+          (doctor: RegistrationFormData) => doctor.role === "SPECIALIST"
+        );
+        setDoctors(specialists);
+      } catch (error) {
+        console.error("Fetch doctors error: ", error);
+      }
+    };
+    fetchDoctors();
+  }, [showNewSpecialistModal]);
 
   // Function to get initials and background color based on name
   const getAvatarProps = (name: string) => {
@@ -122,14 +72,12 @@ export default function Specialists() {
     return { initials, bgColor: colors[colorIndex] };
   };
 
-  const filteredSpecialists = doctors.filter((doctor) => {
+  const filteredSpecialists = doctors?.filter((doctor) => {
     const matchesSearch =
-      doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doctor.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doctor.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doctor.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = !selectedStatus || doctor.status === selectedStatus;
-    const matchesDepartment =
-      !selectedDepartment || doctor.department === selectedDepartment;
-    return matchesSearch && matchesStatus && matchesDepartment;
+    return matchesSearch;
   });
 
   return (
@@ -217,10 +165,6 @@ export default function Specialists() {
                 <TableHead className="font-semibold">Specialist</TableHead>
                 <TableHead className="font-semibold">Email</TableHead>
                 <TableHead className="font-semibold">Phone</TableHead>
-                <TableHead className="font-semibold">
-                  Assigned Appointment
-                </TableHead>
-                <TableHead className="font-semibold">Current Patient</TableHead>
                 <TableHead className="font-semibold">Department</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="text-right font-semibold">
@@ -229,10 +173,12 @@ export default function Specialists() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredSpecialists.map((doctor) => {
-                const { initials, bgColor } = getAvatarProps(doctor.name);
+              {filteredSpecialists.map((doctor, index) => {
+                const { initials, bgColor } = getAvatarProps(
+                  `${doctor.firstName} ${doctor.lastName}`
+                );
                 return (
-                  <TableRow key={doctor.id} className="hover:bg-gray-50">
+                  <TableRow key={index} className="hover:bg-gray-50">
                     <TableCell>
                       <div className="flex items-center space-x-3">
                         <div
@@ -240,36 +186,23 @@ export default function Specialists() {
                         >
                           {initials}
                         </div>
-                        <span className="font-medium">{doctor.name}</span>
+                        <span className="font-medium">{doctor.lastName}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-gray-600">
                       {doctor.email}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {doctor.phone}
+                      {doctor.licenseNumber}
                     </TableCell>
                     <TableCell className="text-gray-600">
-                      {doctor.assignedAppointment}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {doctor.currentPatient}
-                    </TableCell>
-                    <TableCell className="text-gray-600">
-                      {doctor.department}
+                      {doctor.specialization}
                     </TableCell>
                     <TableCell>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${
-                          doctor.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : doctor.status === "On Leave"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800`}
                       >
-                        {doctor.status}
+                        AVAILABLE
                       </span>
                     </TableCell>
                     <TableCell className="text-right">

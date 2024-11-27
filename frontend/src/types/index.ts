@@ -7,6 +7,7 @@ export interface RegistrationFormData {
   rememberMe: boolean;
   agreeToTerms: boolean;
   role: string;
+  specialization?: string;
 }
 
 export interface LoginFormData {
