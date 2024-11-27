@@ -46,7 +46,7 @@ export default function Appointments() {
     return { initials, bgColor: colors[colorIndex] };
   };
 
-  const { appointments, specialistsOptions, gpsOptions, refetch } = useAppointment({setOpen: setShowNewAppointmentModal});
+  const { appointments, specialistsOptions, gpsOptions, refetch, handleDeleteAppointment, isLoading } = useAppointment({setOpen: setShowNewAppointmentModal});
 
   const filteredAppointments = appointments.filter((appointment) => {
     const matchesSearch = appointment?.patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -199,7 +199,7 @@ export default function Appointments() {
                         <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-blue-600 transition-colors">
                           <FiEdit className="w-4 h-4" />
                         </button>
-                        <button className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
+                        <button onClick={() => handleDeleteAppointment(appointment?.id)} className="p-1 hover:bg-gray-100 rounded-md text-gray-600 hover:text-red-600 transition-colors">
                           <FiTrash className="w-4 h-4" />
                         </button>
                       </div>

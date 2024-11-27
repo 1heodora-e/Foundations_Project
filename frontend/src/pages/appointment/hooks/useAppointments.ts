@@ -136,6 +136,22 @@ export default function useAppointment({setOpen, refetch}: Props){
         fetchAppointments();
     },[])
 
+    const handleDeleteAppointment = (id: string) => {
+        setIsLoading(true);
+        axiosInstance.delete(`/appointments/${id}`)
+        .then(() => {
+            setIsLoading(false);
+            toast.success("Appointment deleted successfully");
+            fetchAppointments();
+        })
+        .catch((err) => {
+            setIsLoading(false);
+            toast.error(err?.response?.message[0] || "An error occurred");
+    }
+    )
+    }
+
+
     return {
         control,
         handleSubmit,
@@ -148,6 +164,7 @@ export default function useAppointment({setOpen, refetch}: Props){
         gpsOptions,
         isLoading,
         appointments,
-        refetch: fetchAppointments
+        refetch: fetchAppointments,
+        handleDeleteAppointment
     }
 }
