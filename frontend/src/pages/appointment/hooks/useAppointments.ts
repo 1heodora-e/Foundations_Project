@@ -117,11 +117,6 @@ export default function useAppointment({setOpen, refetch}: Props){
                 refetch();
             }
         })
-        .then((error:any) => {
-            setIsLoading(false);
-            toast.error(error?.response?.message[0] || "An error occurred");
-        }
-        )
         .catch((err) => {
             setIsLoading(false);
             toast.error(err?.response?.message[0] || "An error occurred");

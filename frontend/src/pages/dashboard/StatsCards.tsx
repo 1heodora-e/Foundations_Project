@@ -2,10 +2,10 @@ import { MdEventNote, MdLocalHospital, MdPeople, MdPersonAdd } from "react-icons
 
 export default function StatsCards(){
     const stats = [
-        { label: 'Appointments', value: 128, icon: MdEventNote },
-        { label: 'New Patients', value: 72, icon: MdPersonAdd },
-        { label: 'Doctors', value: 36, icon: MdPeople },
-        { label: 'Departments', value: 12, icon: MdLocalHospital },
+        { label: 'Appointments', value: 18, icon: MdEventNote },
+        { label: 'New Patients', value: 23, icon: MdPersonAdd },
+        { label: 'Specialists', value: 12, icon: MdPeople },
+        { label: 'General Practitioner', value: 14, icon: MdLocalHospital },
     ]
 
     return (
