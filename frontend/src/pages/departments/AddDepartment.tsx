@@ -39,7 +39,6 @@ export default function AddDepartment({ open, setOpen }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission here
-    console.log(formData);
     setOpen(false);
     // Reset form
     setFormData({

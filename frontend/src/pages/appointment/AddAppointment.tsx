@@ -17,25 +17,14 @@ import  Input  from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/textarea";
 import useAppointment from "./hooks/useAppointments";
 
-// Sample data - replace with your actual data
-const patients = [
-  { id: 1, name: "John Doe" },
-  { id: 2, name: "Jane Smith" },
-  { id: 3, name: "Robert Johnson" },
-];
-
-const doctors = [
-  { id: 1, name: "Dr. Smith", specialization: "General Medicine" },
-  { id: 2, name: "Dr. Adams", specialization: "Pediatrics" },
-  { id: 3, name: "Dr. Johnson", specialization: "Cardiology" },
-];
 
 interface Props {
     open: boolean;
     setOpen: (open: boolean) => void;
+    refetch?: () => void;
 }
-export default function AddAppointmentForm({open, setOpen}: Props) {
-  const {handleSubmit, onSubmit, errors, register, setValue} = useAppointment();
+export default function AddAppointmentForm({open, setOpen, refetch}: Props) {
+  const {handleSubmit, onSubmit, errors, register, setValue, patientsOptions, specialistsOptions, gpsOptions, isLoading} = useAppointment({refetch, setOpen});
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
@@ -62,8 +51,8 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
                 <SelectValue placeholder="Select patient" />
               </SelectTrigger>
               <SelectContent>
-                {patients.map((patient) => (
-                  <SelectItem key={patient.id} value={patient.id.toString()}>
+                {patientsOptions.map((patient) => (
+                  <SelectItem key={patient.value} value={patient.value}>
                     {patient.name}
                   </SelectItem>
                 ))}
@@ -88,13 +77,10 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
                 <SelectValue placeholder="Select doctor" />
               </SelectTrigger>
               <SelectContent>
-                {doctors.map((doctor) => (
-                  <SelectItem key={doctor.id} value={doctor.id.toString()}>
+                {specialistsOptions.map((specialist) => (
+                  <SelectItem key={specialist.value} value={specialist.value}>
                     <div>
-                      <span>{doctor.name}</span>
-                      <span className="ml-2 text-sm text-gray-500">
-                        ({doctor.specialization})
-                      </span>
+                      <span>{specialist.name}</span>
                     </div>
                   </SelectItem>
                 ))}
@@ -117,8 +103,8 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
                 <SelectValue placeholder="Select patient" />
               </SelectTrigger>
               <SelectContent>
-                {patients.map((gp) => (
-                  <SelectItem key={gp.id} value={gp.id.toString()}>
+                {gpsOptions.map((gp) => (
+                  <SelectItem key={gp.value} value={gp.value}>
                     {gp.name}
                   </SelectItem>
                 ))}
@@ -129,6 +115,17 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
             )  
             }
           </div>
+
+          <div className="flex-1 space-y-2">
+              <Label htmlFor="dateOfBirth">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                className="text-sm"
+                {...register("date")}
+              />
+              {errors.date && <p className="text-red-500 text-sm">{errors.date.message}</p>}
+            </div>
 
           {/* Condition Input */}
           <div className="space-y-2">
@@ -151,16 +148,16 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
           <div className="space-y-2">
             <Label htmlFor="note">Note</Label>
             <Textarea
-              id="note"
+              id="notes"
               // value={formData.description}
               // onChange={(e) => handleChange("description", e.target.value)}
-              {...register("note")}
-              name="note"
+              {...register("notes")}
+              name="notes"
               placeholder="Enter appointment details and notes"
               rows={4}
             />
-            {errors.note && (
-              <p className="text-red-500 text-sm">{errors.note.message}</p>
+            {errors.notes && (
+              <p className="text-red-500 text-sm">{errors.notes.message}</p>
             )}
           </div>
 
@@ -178,7 +175,7 @@ export default function AddAppointmentForm({open, setOpen}: Props) {
               disabled={Object.keys(errors).length > 0}
               className={Object.keys(errors)?.length < 0 ? "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" : "px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"}
             >
-              Create Appointment
+              {isLoading ? "Loading..." : "Save"}
             </button>
           </DialogFooter>
         </form>

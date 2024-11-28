@@ -75,7 +75,6 @@ export default function usePatient({setOpen, refetch}: Props){
     const fetchPatients = () => {
         axiosInstance.get("/patients")
         .then((response) => {
-            console.log(response.data);
             setPatients(response.data);
         })
         .catch((err) => {
