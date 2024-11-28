@@ -20,103 +20,11 @@ import {
 import Input from "@/components/ui/Input";
 import { ChevronDown, Filter } from "lucide-react";
 import AddAppointmentForm from "./AddAppointment";
-
-const appointments = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "johndoe@example.com",
-    dateCreated: "2024-11-01",
-    doctor: "Dr. Smith",
-    condition: "Flu",
-    status: "Scheduled",
-  },
-  {
-    id: 2,
-    name: "Alice Johnson",
-    email: "alicejohnson@example.com",
-    dateCreated: "2024-11-05",
-    doctor: "Dr. Brown",
-    condition: "Allergy",
-    status: "Scheduled",
-  },
-  {
-    id: 3,
-    name: "Bob Lee",
-    email: "boblee@example.com",
-    dateCreated: "2024-11-15",
-    doctor: "Dr. Clark",
-    condition: "Back Pain",
-    status: "Cancelled",
-  },
-  {
-    id: 4,
-    name: "Jane Smith",
-    email: "janesmith@example.com",
-    dateCreated: "2024-11-10",
-    doctor: "Dr. Adams",
-    condition: "Headache",
-    status: "Completed",
-  },
-  {
-    id: 5,
-    name: "Chris Evans",
-    email: "chrisevans@example.com",
-    dateCreated: "2024-11-12",
-    doctor: "Dr. Adams",
-    condition: "Sprained Ankle",
-    status: "Completed",
-  },
-  {
-    id: 6,
-    name: "Emma Davis",
-    email: "emmadavis@example.com",
-    dateCreated: "2024-11-18",
-    doctor: "Dr. Smith",
-    condition: "Cough",
-    status: "Scheduled",
-  },
-  {
-    id: 7,
-    name: "David Garcia",
-    email: "davidgarcia@example.com",
-    dateCreated: "2024-11-20",
-    doctor: "Dr. Brown",
-    condition: "Skin Rash",
-    status: "Scheduled",
-  },
-  {
-    id: 8,
-    name: "Fiona Wilson",
-    email: "fionawilson@example.com",
-    dateCreated: "2024-11-08",
-    doctor: "Dr. Clark",
-    condition: "Migraine",
-    status: "Completed",
-  },
-  {
-    id: 9,
-    name: "George Miller",
-    email: "georgemiller@example.com",
-    dateCreated: "2024-11-22",
-    doctor: "Dr. Adams",
-    condition: "Fever",
-    status: "Scheduled",
-  },
-  {
-    id: 10,
-    name: "Hannah Moore",
-    email: "hannahmoore@example.com",
-    dateCreated: "2024-11-17",
-    doctor: "Dr. Smith",
-    condition: "Cold",
-    status: "Cancelled",
-  },
-];
+import useAppointment from "./hooks/useAppointments";
 
 
-const doctors = ["Dr. Smith", "Dr. Adams", "Dr. Johnson"];
-const statuses = ["Scheduled", "Completed", "Cancelled"];
+
+const statuses = ["PENDING", "ACTIVE", "INACTIVE", "COMPLETED", "CANCELLED"];
 
 export default function Appointments() {
   const [selectedDoctor, setSelectedDoctor] = useState("");
@@ -138,10 +46,13 @@ export default function Appointments() {
     return { initials, bgColor: colors[colorIndex] };
   };
 
+  const { appointments, specialistsOptions, gpsOptions, refetch } = useAppointment({setOpen: setShowNewAppointmentModal});
+
   const filteredAppointments = appointments.filter((appointment) => {
-    const matchesSearch = appointment.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         appointment.email.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDoctor = !selectedDoctor || appointment.doctor === selectedDoctor;
+    const matchesSearch = appointment?.patient.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          appointment?.patient.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          appointment?.reason.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDoctor = !selectedDoctor || appointment.specialist?.firstName === selectedDoctor;
     const matchesStatus = !selectedStatus || appointment.status === selectedStatus;
     return matchesSearch && matchesDoctor && matchesStatus;
   });
@@ -175,19 +86,42 @@ export default function Appointments() {
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex items-center px-3 py-[6px] border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 gap-2">
                 <Filter className="w-4 h-4 text-xs" />
-                Doctor
+                Specialist
                 <ChevronDown className="w-4 h-4" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Select Doctor</DropdownMenuLabel>
+                <DropdownMenuLabel>Select Specialist</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {doctors.map((doctor) => (
+                 {/* Use sepcialistsOptions  */}
+                  {specialistsOptions.map((doctor) => (
+                    <DropdownMenuCheckboxItem
+                      key={doctor.value}
+                      checked={selectedDoctor === doctor.value}
+                      onCheckedChange={() => setSelectedDoctor(selectedDoctor === doctor.value ? "" : doctor.value)}
+                    >
+                      {doctor.name}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* // For General Practitioner Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex items-center px-3 py-[6px] border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 gap-2">
+                <Filter className="w-4 h-4 text-xs" />
+                General Practitioner
+                <ChevronDown className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>Select General Practitioner</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {gpsOptions.map((gp) => (
                   <DropdownMenuCheckboxItem
-                    key={doctor}
-                    checked={selectedDoctor === doctor}
-                    onCheckedChange={() => setSelectedDoctor(selectedDoctor === doctor ? "" : doctor)}
+                    key={gp.value}
+                    checked={selectedDoctor === gp.value}
+                    onCheckedChange={() => setSelectedDoctor(selectedDoctor === gp.value ? "" : gp.value)}
                   >
-                    {doctor}
+                    {gp.name}
                   </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
@@ -221,17 +155,20 @@ export default function Appointments() {
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="font-semibold">Patient</TableHead>
-                <TableHead className="font-semibold">Email</TableHead>
-                <TableHead className="font-semibold">Date Created</TableHead>
-                <TableHead className="font-semibold">Assigned Doctor</TableHead>
-                <TableHead className="font-semibold">Condition</TableHead>
+                <TableHead className="font-semibold">Phone</TableHead>
+                <TableHead className="font-semibold">Specialist</TableHead>
+                <TableHead className="font-semibold">General Practitioner</TableHead>
+                <TableHead className="font-semibold">Reason</TableHead>
+                <TableHead className="font-semibold">Note</TableHead>
+                <TableHead className="font-semibold">Scheduled Date</TableHead>
+                <TableHead className="font-semibold">Created At</TableHead>
                 <TableHead className="font-semibold">Status</TableHead>
                 <TableHead className="text-right font-semibold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredAppointments.map((appointment) => {
-                const { initials, bgColor } = getAvatarProps(appointment.name);
+                const { initials, bgColor } = getAvatarProps(appointment.patient.firstName+" "+appointment.patient.lastName);
                 return (
                   <TableRow key={appointment.id} className="hover:bg-gray-50">
                     <TableCell>
@@ -239,13 +176,16 @@ export default function Appointments() {
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium ${bgColor}`}>
                           {initials}
                         </div>
-                        <span className="font-medium">{appointment.name}</span>
+                        <span className="font-medium">{appointment?.patient?.firstName} {appointment?.patient?.lastName}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-gray-600">{appointment.email}</TableCell>
-                    <TableCell className="text-gray-600">{appointment.dateCreated}</TableCell>
-                    <TableCell className="text-gray-600">{appointment.doctor}</TableCell>
-                    <TableCell className="text-gray-600">{appointment.condition}</TableCell>
+                    <TableCell className="text-gray-600">{appointment?.patient?.phoneNumber}</TableCell>
+                    <TableCell className="text-gray-600">{appointment?.specialist?.firstName} {appointment?.specialist?.lastName}</TableCell>
+                    <TableCell className="text-gray-600">{appointment?.gp?.firstName} {appointment?.gp?.lastName}</TableCell>
+                    <TableCell className="text-gray-600">{appointment?.reason}</TableCell>
+                    <TableCell className="text-gray-600">{appointment?.notes}</TableCell>
+                    <TableCell className="text-gray-600">{new Date(appointment?.date).toLocaleDateString().split("/").join("-")}</TableCell>
+                    <TableCell className="text-gray-600">{new Date(appointment?.createdAt).toLocaleDateString().split("/").join("-")}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
                         ${appointment.status === 'Completed' ? 'bg-green-100 text-green-800' : 
@@ -275,6 +215,7 @@ export default function Appointments() {
         <AddAppointmentForm 
              open={showNewAppointmentModal}
              setOpen={setShowNewAppointmentModal}
+             refetch={refetch}
         />
       }
     </Layout>
