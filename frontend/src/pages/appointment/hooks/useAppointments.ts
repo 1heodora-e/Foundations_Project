@@ -107,15 +107,15 @@ export default function useAppointment({setOpen, refetch}: Props){
     
     const onSubmit = (data: FieldValues) => {
         setIsLoading(true);
-        axiosInstance.post("/appointments", data)
+        axiosInstance.post("/appointments", {...data, date: new Date(data.date)})
         .then(() => {
             setIsLoading(false);
             setOpen(false);
+            toast.success("Appointment added successfully");
             reset();
             if(refetch){
                 refetch();
             }
-            toast.success("Appointment added successfully");
         })
         .then((error:any) => {
             setIsLoading(false);
