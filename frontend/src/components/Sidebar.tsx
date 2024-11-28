@@ -4,7 +4,7 @@ import {
   MdDashboard,
   MdEventNote,
   MdPeople,
-  MdLocalHospital,
+  // MdLocalHospital,
   MdPersonAdd,
   MdHelp,
 } from "react-icons/md";
@@ -13,7 +13,7 @@ const navigationItems = [
   { path: "/dashboard", label: "Dashboard", icon: MdDashboard },
   { path: "/appointments", label: "Appointments", icon: MdEventNote },
   { path: "/specialists", label: "Specialists", icon: MdPeople },
-  { path: "/departments", label: "Departments", icon: MdLocalHospital },
+  // { path: "/departments", label: "Departments", icon: MdLocalHospital },
   { path: "/patients", label: "Patients", icon: MdPersonAdd },
   { path: "/help", label: "Help", icon: MdHelp },
 ];
