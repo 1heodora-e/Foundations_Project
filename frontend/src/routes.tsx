@@ -1,14 +1,14 @@
-import { createBrowserRouter } from 'react-router-dom';
-import SignupPage from './pages/SignupPage';
-import LoginPage from './pages/LoginPage';
-import Dashboard from './pages/dashboard/Dashboard';
-import HomePage from './pages/HomePage';
-import Appointments from './pages/appointment/Appointments';
-import Doctors from './pages/doctors/Doctors';
-import Patients from './pages/patients/Patients';
-import Departments from './pages/departments/Departments';
-import { AuthProvider } from './context/AuthContext';
-import Help from './pages/help';
+import { createBrowserRouter } from "react-router-dom";
+import SignupPage from "./pages/SignupPage";
+import LoginPage from "./pages/LoginPage";
+import Dashboard from "./pages/dashboard/Dashboard";
+import HomePage from "./pages/HomePage";
+import Appointments from "./pages/appointment/Appointments";
+import Specialists from "./pages/specialists/Specialist";
+import Patients from "./pages/patients/Patients";
+import Departments from "./pages/departments/Departments";
+import { AuthProvider } from "./context/AuthContext";
+import Help from "./pages/help";
 
 export const router = createBrowserRouter([
   {
@@ -20,31 +20,32 @@ export const router = createBrowserRouter([
     // ),
     children: [
       {
-        path: '/',
+        path: "/",
         index: true,
         element: <HomePage />,
       },
       {
-        path: 'signup',
-        element: 
+        path: "signup",
+        element: (
           <AuthProvider>
             <SignupPage />
           </AuthProvider>
+        ),
       },
       {
-        path: 'login',
+        path: "login",
 
         element: (
           <AuthProvider>
             <LoginPage />,
           </AuthProvider>
-        )
+        ),
       },
       {
-        path: 'dashboard',
+        path: "dashboard",
         element: (
           // <ProtectedRoute>
-            <Dashboard />
+          <Dashboard />
           // </ProtectedRoute>
         ),
       },
@@ -52,42 +53,42 @@ export const router = createBrowserRouter([
         path: "appointments",
         element: (
           // <ProtectedRoute>
-            <Appointments />
+          <Appointments />
           // </ProtectedRoute>
-        )
+        ),
       },
       {
-        path: "doctors",
+        path: "specialists",
         element: (
-          // <ProtectedRoute>
-            <Doctors />
-          // </ProtectedRoute>
-        )
+          <AuthProvider>
+            <Specialists />,
+          </AuthProvider>
+        ),
       },
       {
         path: "patients",
         element: (
           // <ProtectedRoute>
-            <Patients />
+          <Patients />
           // </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "departments",
         element: (
           // <ProtectedRoute>
-            <Departments />
+          <Departments />
           // </ProtectedRoute>
-        )
+        ),
       },
       {
         path: "help",
         element: (
           // <ProtectedRoute>
-            <Help />
+          <Help />
           // </ProtectedRoute>
-        )
-      }
+        ),
+      },
     ],
   },
 ]);
